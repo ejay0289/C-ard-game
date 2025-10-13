@@ -36,15 +36,13 @@ struct Card *Card_create(int value,char suite,char display_value){
 
 struct Player *player_container[MAX_PLAYER_COUNT] = {NULL,NULL,NULL,NULL};
 int active_players = 0;
-struct Player *create_player(){
+void create_player(){
 	struct Player *player = malloc(sizeof(struct Player));
 	assert(player != NULL);
 
 	for (int i = 0; i < 4; i++) {
 		player->player_hand[i] = (struct Card){0};
 	}
-
-//	player->player_hand = player_hand;
 
 	for(int i = 0; i<MAX_PLAYER_COUNT;i++){
 	if(player_container[i] == NULL ){
@@ -56,7 +54,6 @@ struct Player *create_player(){
 	}	
 
     active_players++;
-	return player;
 }
 
 void print_players(){
@@ -207,52 +204,55 @@ void print_deck(const struct Deck *deck) {
 }
 
 int main(){
-for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
-	player_container[i] = NULL;
-}
 
+    struct Deck *deck = populate_deck();
+    assert(deck != NULL);
 
-struct Deck *deck = populate_deck();
-assert(deck != NULL);
-
-printf("Total cards in deck: %d\n",deck->num_cards);
-shuffle_deck(deck);
+    printf("Total cards in deck: %d\n",deck->num_cards);
+    shuffle_deck(deck);
 //print_deck(deck);
- 
-struct Player *player_1 = create_player();
-struct Player *player_2 = create_player();
-struct Player *player_3 = create_player();
-
-struct Player *player_4 = malloc(sizeof(struct Player));
-player_4->player_id = 4;
-player_4->player_hand[0] = (struct Card){.value = 10, .suite = 'H'};
-player_4->player_hand[1] = (struct Card){.value = 4, .suite = 'H'};
-player_4->player_hand[2] = (struct Card){.value = 4, .suite = 'H'};
-player_4->player_hand[3] = (struct Card){0};
-player_4->hand_size = 3;
-
-player_container[3] = player_4;
-active_players++;
-//end player_4 definition
+    printf("Welcome to twins and followers card game\n");
+    int user_choice;
+    while(1){
+        printf("Enter 1 to play or 2 for the Rul3z\n");
+        if(scanf("%d",&user_choice) != 1 || user_choice <= 0 || user_choice > 2){
+            printf("Invalid input. Please try again...\n");
+        }
+        else break;
+    }
+    int num_players;
+    while(1){
+        printf("Enter number of players\n");
+        if(scanf("%d",&num_players) == 1 && num_players <= MAX_PLAYER_COUNT && num_players > 0){
+            for(int i = 0;i < num_players;i++){
+                create_player();
+            }
+        }
+    break;
+    }
 
 printf("%d active players\n",active_players);
-print_players();
-deal_cards(deck);
-print_hand(player_1);
-print_hand(player_2);
-print_hand(player_3);
-print_hand(player_4);
+    print_players();
+    deal_cards(deck);
 
+    printf("Number of cards in deck: %d\n",deck->num_cards);
+    pair_by_twin(player_container,active_players);
+    for(int i = 0;i<active_players;i++){
+        print_hand(player_container[i]);}
 
-printf("Number of cards in deck: %d\n",deck->num_cards);
+/*
+    struct Player *player_4 = malloc(sizeof(struct Player));
+    player_4->player_id = 4;
+    player_4->player_hand[0] = (struct Card){.value = 10, .suite = 'H'};
+    player_4->player_hand[1] = (struct Card){.value = 4, .suite = 'H'};
+    player_4->player_hand[2] = (struct Card){.value = 4, .suite = 'H'};
+    player_4->player_hand[3] = (struct Card){0};
+    player_4->hand_size = 3;
 
-pair_by_twin(player_container,active_players);
+    player_container[3] = player_4;
+    active_players++; */
+//end player_4 definition
 
-
-print_hand(player_1);
-print_hand(player_2);
-print_hand(player_3);
-print_hand(player_4);
 //player_draw_card(player_1,deck);
 //print_hand(player_1);
 //printf("Number of cards in deck: %d\n",deck->num_cards);
