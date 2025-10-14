@@ -120,8 +120,12 @@ void player_draw_card(struct Player *player,struct Deck *deck){
     if(player->hand_size == 3){
     	struct Card top_card = deck->cards_in_deck[deck->num_cards-1];
     	player->player_hand[3] = top_card;
+        print_hand(player);
 	    deck->num_cards--;
         deck->top_card = deck->cards_in_deck[deck->num_cards - 1];
+        printf("\n");
+        printf("Player %d picked\n",player->player_id);
+        print_hand(player);
         player->hand_size++;
 	}
 }
@@ -147,6 +151,7 @@ void throw_card(struct Player *player){
     player->player_hand[player->hand_size - 1] = (struct Card){0};
     player->hand_size--;
     printf("Card %d%c discarded.\n",discarded_card.value, discarded_card.suite);
+    print_hand(player);
 	}
 
 }
@@ -231,7 +236,7 @@ int main(){
     break;
     }
 
-printf("%d active players\n",active_players);
+    printf("%d active players\n",active_players);
     print_players();
     deal_cards(deck);
 
@@ -240,20 +245,10 @@ printf("%d active players\n",active_players);
     for(int i = 0;i<active_players;i++){
         print_hand(player_container[i]);}
 
-/*
-    struct Player *player_4 = malloc(sizeof(struct Player));
-    player_4->player_id = 4;
-    player_4->player_hand[0] = (struct Card){.value = 10, .suite = 'H'};
-    player_4->player_hand[1] = (struct Card){.value = 4, .suite = 'H'};
-    player_4->player_hand[2] = (struct Card){.value = 4, .suite = 'H'};
-    player_4->player_hand[3] = (struct Card){0};
-    player_4->hand_size = 3;
-
-    player_container[3] = player_4;
-    active_players++; */
-//end player_4 definition
-
-//player_draw_card(player_1,deck);
+    for(int i = 0;i < active_players;i++){
+        player_draw_card(player_container[i],deck);
+        throw_card(player_container[i]);
+    }
 //print_hand(player_1);
 //printf("Number of cards in deck: %d\n",deck->num_cards);
 
