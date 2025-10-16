@@ -7,9 +7,10 @@
 #define DECK_SIZE 52
 #define MAX_HAND_SIZE 4
 
+int game_won = 0;
 struct Player;
 int check_twins(struct Player *player);
-
+void check_win(struct Player *player);
 
 struct Card {
 	int value;
@@ -160,11 +161,19 @@ if(!check_twins(player) && player->player_hand[3].value != 0){
 
             }
         }
-        
+      check_win(player); 
 	}
 }
 
+void check_win(struct Player *player){
+    if(player->hand_size == 4){
+        if(player->player_hand[0].value == player->player_hand[1].value && (player->player_hand[2].value == player->player_hand[3].value - 1 || player->player_hand[2].value == player->player_hand[3].value + 1)){
+            printf("Player %d won. Game 0ver\n",player->player_id);
+            game_won = 1;
+         }
+    }
 
+}
 
 void throw_card(struct Player *player){
    
@@ -281,6 +290,7 @@ void print_deck(const struct Deck *deck) {
 	}
 }
 
+
 int main(){
 
     struct Deck *deck = populate_deck();
@@ -314,7 +324,8 @@ int main(){
     deal_cards(deck);
 
     printf("Number of cards in deck: %d\n",deck->num_cards);
-    
+   
+while(!game_won){ 
     for(int i = 0;i<active_players;i++){
         check_twins(player_container[i]);
         check_followers(player_container[i]);
@@ -329,6 +340,7 @@ int main(){
         player_draw_card(player_container[i],deck);
         throw_card(player_container[i]);
     }
+}
 //print_hand(player_1);
 //printf("Number of cards in deck: %d\n",deck->num_cards);
 
