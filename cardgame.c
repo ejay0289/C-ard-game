@@ -7,6 +7,10 @@
 #define DECK_SIZE 52
 #define MAX_HAND_SIZE 4
 
+struct Player;
+int check_twins(struct Player *player);
+
+
 struct Card {
 	int value;
 	char suite;
@@ -52,7 +56,7 @@ void create_player(){
 		break;		
 		}
 	}	
-
+//    printf("%d",player->hand_size);
     active_players++;
 }
 
@@ -112,7 +116,10 @@ void deal_cards(struct Deck *deck){
             player_container[i]->hand_size++;
 	        }
 	    }
+
+    printf("%d",player_container[i]->player_hand[3].value);
 	}
+    
 
 }
 
@@ -120,13 +127,40 @@ void player_draw_card(struct Player *player,struct Deck *deck){
     if(player->hand_size == 3){
     	struct Card top_card = deck->cards_in_deck[deck->num_cards-1];
     	player->player_hand[3] = top_card;
-        print_hand(player);
 	    deck->num_cards--;
         deck->top_card = deck->cards_in_deck[deck->num_cards - 1];
         printf("\n");
         printf("Player %d picked\n",player->player_id);
-        print_hand(player);
         player->hand_size++;
+        print_hand(player);
+
+
+if(!check_twins(player) && player->player_hand[3].value != 0){
+
+            if(player->player_hand[3].value == player->player_hand[2].value){
+            struct Card temp1 = player->player_hand[2];
+            struct Card temp2 = player->player_hand[3];
+
+            player->player_hand[2] = player->player_hand[0];
+            player->player_hand[3] = player->player_hand[1];
+            player->player_hand[0] = temp1;
+            player->player_hand[1] = temp2;
+            }
+            else if(player->player_hand[3].value == player->player_hand[1].value){
+            struct Card temp = player->player_hand[3];
+            player->player_hand[3] = player->player_hand[0];
+            player->player_hand[0] = temp;
+                     
+            }
+
+            else if(player->player_hand[3].value == player->player_hand[0].value){
+                struct Card temp = player->player_hand[3];
+                player->player_hand[3] = player->player_hand[1];
+                player->player_hand[1] = temp;
+
+            }
+        }
+        
 	}
 }
 
@@ -157,31 +191,70 @@ void throw_card(struct Player *player){
 }
 
 
-void pair_by_twin(struct Player *players[],int active_players){
-
-    for(int j = 0;j < active_players;j++){
-        
-        if(players[j]->player_hand[0].value == players[j]->player_hand[1].value){
-        //Do nothing card(0,1) are already adjacent;
+int check_twins(struct Player *player){
+    int pair_found = 0;
+    
+            
+              
+        if(player->player_hand[0].value == player->player_hand[1].value){
+            pair_found = 1;
         }
-        else if(players[j]->player_hand[0].value == players[j]->player_hand[2].value){
-            players[j]->player_hand[3] = players[j]->player_hand[1];
-            players[j]->player_hand[1] = players[j]->player_hand[2];
-            players[j]->player_hand[2] = players[j]->player_hand[3];
-            players[j]->player_hand[3] = (struct Card){0};
-        
+        else if(player->player_hand[0].value == player->player_hand[2].value){
+            player->player_hand[3] = player->player_hand[1];
+            player->player_hand[1] = player->player_hand[2];
+            player->player_hand[2] = player->player_hand[3];
+            player->player_hand[3] = (struct Card){0};
+            pair_found = 1;    
         }
-        else if(players[j]->player_hand[1].value == players[j]->player_hand[2].value){
-            players[j]->player_hand[3] = players[j]->player_hand[0];
+        else if(player->player_hand[1].value == player->player_hand[2].value){
+            player->player_hand[3] = player->player_hand[0];
             for(int i = 1;i < 4; i++){
-                players[j]->player_hand[i-1] = players[j]->player_hand[i];
+                player->player_hand[i-1] = player->player_hand[i];
             
             } 
-            players[j]->player_hand[3] = (struct Card){0};
+            player->player_hand[3] = (struct Card){0};
+            pair_found = 1;
         }
-        
-    }
+        else pair_found = 0;    
+    
+    return pair_found;
 }
+
+int check_followers(struct Player *player){
+int followers_found = 0;
+if(!check_twins(player)){
+    
+
+
+    if(player->player_hand[0].value == player->player_hand[1].value - 1 || player->player_hand[0].value == player->player_hand[1].value + 1){
+        followers_found = 1;
+        printf("Followers found!\n");
+    }
+
+    else if(player->player_hand[0].value == player->player_hand[2].value-1||player->player_hand[0].value == player->player_hand[2].value+1){
+            player->player_hand[3] = player->player_hand[1];
+            player->player_hand[1] = player->player_hand[2];
+            player->player_hand[2] = player->player_hand[3];
+            player->player_hand[3] = (struct Card){0};
+            followers_found = 1;
+        printf("Followers found!\n");
+        }
+    else if(player->player_hand[0].value == player->player_hand[2].value-1||player->player_hand[0].value == player->player_hand[2].value+1){
+            player->player_hand[3] = player->player_hand[0];
+            for(int i = 1;i < 4; i++){
+                player->player_hand[i-1] = player->player_hand[i];
+
+            }
+            player->player_hand[3] = (struct Card){0};
+            followers_found = 1;
+        printf("Followers found!\n");
+        }
+    else followers_found = 0;
+}
+    return followers_found;
+
+}
+
 
 struct Deck *populate_deck(){	
 struct Deck *deck = malloc(sizeof(*deck));
@@ -241,11 +314,18 @@ int main(){
     deal_cards(deck);
 
     printf("Number of cards in deck: %d\n",deck->num_cards);
-    pair_by_twin(player_container,active_players);
+    
     for(int i = 0;i<active_players;i++){
-        print_hand(player_container[i]);}
+        check_twins(player_container[i]);
+        check_followers(player_container[i]);
+    }
+
+    for(int i = 0;i<active_players;i++){
+        print_hand(player_container[i]);
+    }
 
     for(int i = 0;i < active_players;i++){
+        printf("\n");
         player_draw_card(player_container[i],deck);
         throw_card(player_container[i]);
     }
