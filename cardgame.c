@@ -11,6 +11,7 @@ int game_won = 0;
 struct Player;
 int check_twins(struct Player *player);
 void check_win(struct Player *player);
+int check_followers(struct Player *player);
 
 struct Card {
 	int value;
@@ -136,7 +137,7 @@ void player_draw_card(struct Player *player,struct Deck *deck){
         print_hand(player);
 
 
-if(!check_twins(player) && player->player_hand[3].value != 0){
+    if(!check_twins(player) && player->player_hand[3].value != 0){
 
             if(player->player_hand[3].value == player->player_hand[2].value){
             struct Card temp1 = player->player_hand[2];
@@ -146,21 +147,50 @@ if(!check_twins(player) && player->player_hand[3].value != 0){
             player->player_hand[3] = player->player_hand[1];
             player->player_hand[0] = temp1;
             player->player_hand[1] = temp2;
+            print_hand(player);
             }
             else if(player->player_hand[3].value == player->player_hand[1].value){
             struct Card temp = player->player_hand[3];
             player->player_hand[3] = player->player_hand[0];
             player->player_hand[0] = temp;
                      
+            print_hand(player);
             }
 
             else if(player->player_hand[3].value == player->player_hand[0].value){
                 struct Card temp = player->player_hand[3];
                 player->player_hand[3] = player->player_hand[1];
                 player->player_hand[1] = temp;
+            print_hand(player);
 
             }
         }
+    if(!check_twins(player) && player->player_hand[3].value != 0 && !check_followers(player)){
+        if(player->player_hand[3].value == player->player_hand[2].value-1 || player->player_hand[3].value == player->player_hand[2].value+1){
+            struct Card temp1 = player->player_hand[2];
+            struct Card temp2 = player->player_hand[3];
+            player->player_hand[2] = player->player_hand[0];
+            player->player_hand[3] = player->player_hand[1];
+            player->player_hand[0] = temp1;
+            player->player_hand[1] = temp2;
+            print_hand(player);
+    }
+        else if(player->player_hand[3].value == player->player_hand[1].value-1 || player->player_hand[3].value == player->player_hand[1].value+1){
+            struct Card temp = player->player_hand[3];
+            player->player_hand[3] = player->player_hand[0];
+            player->player_hand[0] = temp;
+
+            print_hand(player);
+    }
+
+        else if(player->player_hand[3].value == player->player_hand[0].value-1 || player->player_hand[3].value == player->player_hand[0].value+1){
+            struct Card temp = player->player_hand[3];
+            player->player_hand[3] = player->player_hand[1];
+            player->player_hand[1] = temp;
+
+            print_hand(player);
+        }
+    }
       check_win(player); 
 	}
 }
@@ -237,16 +267,16 @@ if(!check_twins(player)){
 
     if(player->player_hand[0].value == player->player_hand[1].value - 1 || player->player_hand[0].value == player->player_hand[1].value + 1){
         followers_found = 1;
-        printf("Followers found!\n");
+        printf("Player %d has followers!\n",player->player_id);
     }
 
-    else if(player->player_hand[0].value == player->player_hand[2].value-1||player->player_hand[0].value == player->player_hand[2].value+1){
+    else if(player->player_hand[0].value == player->player_hand[2].value-1||(player->player_hand[0].value == player->player_hand[2].value+1)){
             player->player_hand[3] = player->player_hand[1];
             player->player_hand[1] = player->player_hand[2];
             player->player_hand[2] = player->player_hand[3];
             player->player_hand[3] = (struct Card){0};
             followers_found = 1;
-        printf("Followers found!\n");
+        printf("Player %d has followers!\n",player->player_id);
         }
     else if(player->player_hand[0].value == player->player_hand[2].value-1||player->player_hand[0].value == player->player_hand[2].value+1){
             player->player_hand[3] = player->player_hand[0];
@@ -256,7 +286,15 @@ if(!check_twins(player)){
             }
             player->player_hand[3] = (struct Card){0};
             followers_found = 1;
-        printf("Followers found!\n");
+        printf("Player %d has followers!\n",player->player_id);
+        }
+    else if(player->player_hand[1].value == player->player_hand[2].value-1||(player->player_hand[1].value == player->player_hand[2].value+1)){
+            player->player_hand[3] = player->player_hand[0];
+            player->player_hand[0] = player->player_hand[2];
+            player->player_hand[2] = player->player_hand[3];
+            player->player_hand[3] = (struct Card){0};
+            followers_found = 1;
+        printf("Player %d has followers!\n",player->player_id);
         }
     else followers_found = 0;
 }
