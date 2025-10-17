@@ -376,6 +376,7 @@ while(!game_won){
     for(int i = 0;i < active_players;i++){
         printf("\n");
         player_draw_card(player_container[i],deck);
+        if(game_won) break;
         throw_card(player_container[i]);
     }
 }
